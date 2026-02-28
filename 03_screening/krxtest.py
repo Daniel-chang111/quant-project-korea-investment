@@ -1,3 +1,4 @@
+#krx 데이서 수집이 오류나서 수정
 from pykrx import stock
 
 # 오늘 날짜 기준 코스피 전 종목 리스트 가져오기
