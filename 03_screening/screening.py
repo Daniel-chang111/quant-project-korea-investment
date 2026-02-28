@@ -34,11 +34,24 @@ def get_rsi(ticker, start="20250101", end="20250221"):
         df = fdr.DataReader(ticker, start, end)
         #RSI는 14일치 자료가 필요한데 만약 20개 미만이면 넘어가
         if len(df) < 20:
+<<<<<<< HEAD
             return None
             #close:종가값만 추출, window:rsi계산 일
         rsi = ta.momentum.RSIIndicator(df['Close'], window=14).rsi()
         #-1: 맨뒤에서 첫번째로 가장 최신rsi값 지정, round:반올림, 2: 소수둘째
         return round(rsi.iloc[-1], 2)
+=======
+            return None, None
+            #close:종가값만 추출, window:rsi계산 일
+        rsi = ta.momentum.RSIIndicator(df['Close'], window=14).rsi()
+        rsi_value = round(rsi.iloc[-1], 2)
+
+        volume_mean = df['Volume'].rolling(20).mean().iloc[-1]
+        volume_last = df['Volume'].iloc[-1]
+        volume_ratio = round(volume_last / volume_mean, 2)
+        #-1: 맨뒤에서 첫번째로 가장 최신rsi값 지정, round:반올림, 2: 소수둘째
+        return rsi_value, volume_ratio
+>>>>>>> 420c653 (캐시 기능 추가 스크리닝 v2 완성)
         #try로 실행하고 except:만약 오류나면 None반환하고 다음 종목으로 넘어가
     except:
         return None
@@ -52,9 +65,15 @@ result = []
 print("스크리닝 시작...")
 #enumerate: 순서번호와 값을 동시에 가져옴
 for i, ticker in enumerate(tickers):      # [:50] 제거 → 전체 종목
+<<<<<<< HEAD
     rsi = get_rsi(ticker)
     #not None:계산이 됐을때나 rsi가 35이하일때
     if rsi is not None and rsi <= 35:      # 35 이하로 다시 조건 강화
+=======
+    rsi, volume_ratio = get_rsi(ticker)
+    #not None:계산이 됐을때나 rsi가 35이하일때
+    if rsi is not None and rsi <= 35 and volume_ratio >= 2.0:      # 35 이하로 다시 조건 강화
+>>>>>>> 420c653 (캐시 기능 추가 스크리닝 v2 완성)
 # 종목코드 열 가져오기
 # → 문자열로 변환 astype
 # → 6자리로 맞추기 zfill
@@ -65,8 +84,24 @@ for i, ticker in enumerate(tickers):      # [:50] 제거 → 전체 종목
 # → ["삼성전자"]
         name = df[df['종목코드'].astype(str).str.zfill(6) == ticker]['회사명'].values
         name = name[0] if len(name) > 0 else ticker
-        result.append({'종목코드': ticker, '종목명': name, 'RSI': rsi})
-        print(f"✅ {name} ({ticker}) RSI: {rsi}")
+        result.append({'종목코드': ticker, '종목명': name, 'RSI': rsi, '거래량비율': volume_ratio})
+        print(f"✅ {name} ({ticker}) RSI: {rsi} 거래량비율: {volume_ratio}")
     time.sleep(0.3)
 
 print(f"\n총 {len(result)}개 종목 발견!")
+<<<<<<< HEAD
+=======
+# result 리스트를 DataFrame으로 변환
+# pd.DataFrame() = 리스트를 표 형태로 변환
+result_df = pd.DataFrame(result)
+
+# 오늘 날짜 가져오기
+from datetime import datetime
+today = datetime.today().strftime("%Y%m%d")  # 20260228 형태로 변환
+
+# 엑셀로 저장
+# index=False = 행 번호(0,1,2...) 저장 안 함
+result_df.to_excel(f"03_screening/RSI_스크리닝_{today}.xlsx", index=False)
+#f"":문자열 안에 변수넣을때 함수
+print(f"✅ 엑셀 저장 완료! → RSI_스크리닝_{today}.xlsx")
+>>>>>>> 420c653 (캐시 기능 추가 스크리닝 v2 완성)
