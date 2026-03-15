@@ -1,0 +1,10 @@
+data_backtest/
+data_theme/
+data/
+data_daily/
+collector/
+venv/
+*.xlsx
+*.csv
+__pycache__/
+*.pyc
